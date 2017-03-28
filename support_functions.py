@@ -5,7 +5,7 @@ import re
 from update_progress import *
 
 
-__all__ = ['fft_kernel_domain', 'add_contributions', 'get_reduced_time_signal', 'read_data']
+__all__ = ['fft_kernel_domain', 'add_contributions', 'get_reduced_time_signal', 'get_data']
 
 
 def fft_kernel_domain(fTau, k, si, M, Mr):
@@ -43,10 +43,10 @@ def add_contributions(f, t, M, Mr, Msp, tau):
         m, contribution = get_contribution(f[i], t[i], M, Mr, Msp, tau, E3, m1)
 
         if m < Msp:
-            fTau[ 0:(Msp+m+1) ] += contribution[ (Msp-m-1):(2*Msp) ] 
+            fTau[ 0:(Msp+m+1) ] += contribution[ (Msp-m-1):(2*Msp) ]
             fTau[ (Mr-(Msp-m-1)):Mr ] += contribution[ 0:(Msp-m-1) ]
         elif m+Msp >= Mr:
-            fTau[ (m-Msp+1):Mr ] += contribution[ 0:(Msp+Mr-m-1) ] 
+            fTau[ (m-Msp+1):Mr ] += contribution[ 0:(Msp+Mr-m-1) ]
             fTau[ 0:(m+Msp-Mr+1) ] += contribution[ (Msp+Mr-m-1):2*Msp ]
         else:
             fTau[ (m-Msp+1):(m+Msp+1) ] += contribution
@@ -60,7 +60,7 @@ def get_contribution(fj, xj, M, Mr, Msp, tau, E3, m1):
     '''
     return the contribution of fj to neighbouring Msp points
     '''
-    
+
     p, m = choose_point(xj, Mr)
     E1 = exp( -(xj-p)**2/(4*tau) )
     E2 = exp( ( (xj-p)*pi )/(Mr*tau) )
@@ -69,7 +69,7 @@ def get_contribution(fj, xj, M, Mr, Msp, tau, E3, m1):
     contribution = fj*E1*E2*E3
 
     return m, contribution
-    
+
 
 def get_reduced_time_signal(x, f, uinf, h):
     nonDimTime = h/uinf
@@ -104,37 +104,57 @@ def choose_point(xj, Mr):
             p = 2*pi*(c/Mr)
             m = c
             break
-            
+
     return p, m
 
+def get_data(fname, skiprows=0):
+    nCols = get_number_of_cols(fname, skiprows)
+    data = [[] for i in range(nCols)]
 
-def read_data(filePath, cols):
-    '''
-    Input
-    -----
-        filePath: path of the file to read
-        cols: array of columns to read 
+    count = 0
 
-    Output
-    ------
-        data: array of data read from the file
-    '''
-
-    data = [[] for i in range(len(cols))]
-    
-    with open(filePath) as f:
+    with open(fname) as f:
         for line in f:
-            line = re.split(r'[(|)|\s]', line)
+            count += 1
 
-            while '' in line:
-                line.remove('')
+            if count > skiprows:
+                line = re.split(r'[(|)|\s]', line)
 
-            try:
-                for i in range(len(cols)):
-                    data[i].append( float( line[cols[i] - 1] ) )
+                # remove whitespaces from the line
+                while '' in line:
+                    line.remove('')
 
-            except:
-                continue
-                
+                try:
+                    for i in range( nCols ):
+                        data[i].append( float( line[i] ) )
+
+                except:
+                    continue
+
+            # skip rows
+            else: continue
+
     return np.array(data).T
 
+
+def get_number_of_cols(fname, skiprows=0):
+    count = 0
+    with open(fname) as f:
+        for line in f:
+            count += 1
+
+            if count > skiprows:
+                line = re.split(r'[(|)|\s]', line)
+                while '' in line:
+                    line.remove('')
+
+                try:
+                    temp = float( line[0] )
+                    nCols = len(line)
+                    break
+                except:
+                    continue
+
+            else: continue
+
+    return nCols
