@@ -91,7 +91,7 @@ def get_reduced_time_signal(x, f, uinf, h):
 
     f = f[:idx]
 
-    return t, f
+    return t, f, startTime, endTime
 
 
 def choose_point(xj, Mr):

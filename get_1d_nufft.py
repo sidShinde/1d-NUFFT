@@ -13,7 +13,7 @@ def get_1d_nufft(x, f, uinf=1.0, h=1.0):
     '''
 
     # sampled points mapped to [0, 2pi]
-    t, f = get_reduced_time_signal(x, f, uinf, h)
+    t, f, startTime, endTime = get_reduced_time_signal(x, f, uinf, h)
 
     # number of sample points:
     N = t.shape[0]
@@ -37,4 +37,4 @@ def get_1d_nufft(x, f, uinf=1.0, h=1.0):
     Fk = constant*np.exp( np.power( k, 2 )*tau )*FTau
     Fk = np.absolute(Fk)
 
-    return k[ (int(M/2) + 1): ]/(2*pi), Fk[ (int(M/2) + 1): ]
+    return k[ (int(M/2) + 1): ]/(endTime - startTime), Fk[ (int(M/2) + 1): ]
