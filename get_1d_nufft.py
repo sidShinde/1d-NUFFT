@@ -1,3 +1,5 @@
+#! /usr/bin
+
 import numpy as np
 from math import pi
 from support_functions import *
