@@ -2,7 +2,7 @@ import numpy as np
 from math import pi
 from math import exp
 import re
-from update_progress import *
+from tqdm import tqdm
 
 
 __all__ = ['fft_kernel_domain', 'add_contributions', 'get_reduced_time_signal', 'get_data']
@@ -15,12 +15,10 @@ def fft_kernel_domain(fTau, k, si, M, Mr):
 
     FTau = np.zeros( M, dtype=np.complex_ )
 
-    for i in range(M):
+    for i in tqdm( range(M), ncols=100 ):
         kVector = np.exp( -1j*k[i]*si )
         FTau[i] = np.dot( fTau, kVector )
         FTau[i] = (1/Mr)*FTau[i]
-
-        update_progress((i+1)/M)
 
     return FTau
 
@@ -39,7 +37,7 @@ def add_contributions(f, t, M, Mr, Msp, tau):
 
     fTau = np.zeros(Mr)
 
-    for i in range(M):
+    for i in tqdm( range(M), ncols=100 ):
         m, contribution = get_contribution(f[i], t[i], M, Mr, Msp, tau, E3, m1)
 
         if m < Msp:
@@ -50,8 +48,6 @@ def add_contributions(f, t, M, Mr, Msp, tau):
             fTau[ 0:(m+Msp-Mr+1) ] += contribution[ (Msp+Mr-m-1):2*Msp ]
         else:
             fTau[ (m-Msp+1):(m+Msp+1) ] += contribution
-
-        update_progress((i+1)/M)
 
     return fTau
 
