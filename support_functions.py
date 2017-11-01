@@ -67,14 +67,14 @@ def get_contribution(fj, xj, M, Mr, Msp, tau, E3, m1):
     return m, contribution
 
 
-def get_reduced_time_signal(x, f, uinf, h):
+def get_reduced_time_signal(x, f, uinf, h, ndtu=100):
     nonDimTime = h/uinf
     startTime  = x.min()
     endTime    = x.max()
 
     nNonDimTimeUnits = ( endTime - startTime ) / nonDimTime
-    if nNonDimTimeUnits > 100:
-        nNonDimTimeUnits = 100
+    if nNonDimTimeUnits > ndtu:
+        nNonDimTimeUnits = ndtu
 
     endTime = startTime + nNonDimTimeUnits*nonDimTime
 
